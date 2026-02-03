@@ -1,0 +1,336 @@
+================================================================================
+JIT KERNEL GENERATOR - BUILD INFORMATION
+================================================================================
+Component: Advanced
+Project: JCore
+Type: Runtime Code Generation System
+
+================================================================================
+DIRECTORY STRUCTURE
+================================================================================
+
+advanced/jit_kernel/
+├── include/
+│   ├── jit_kernel_generator.h       # Public API header
+│   └── jit_kernel_internal.h        # Internal implementation header
+│
+└── src/
+    ├── jit_core.cpp                  # Core initialization and state management
+    ├── llvm_codegen.cpp              # LLVM IR generation and compilation
+    ├── vectorization_backends.cpp    # Highway/VectorClass/EVE integration
+    ├── jit_utilities.cpp             # Debugging and introspection utilities
+    ├── jit_wrapper.cpp               # High-level convenience wrappers
+    └── jit_kernel_test.cpp           # Comprehensive test suite
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+Required Libraries:
+-------------------
+1. LLVM 14+ (Core, ORC JIT, Support, Target)
+   - libLLVM-14
+   - libLLVMCore
+   - libLLVMOrcJIT
+   - libLLVMSupport
+   - libLLVMTarget
+
+2. OpenBLAS (for benchmarking)
+   - libopenblas
+
+3. BLIS (for benchmarking)
+   - libblis
+
+4. LIBXSMM (optional, for specialized kernels)
+   - libxsmm
+
+5. hwloc (hardware topology)
+   - libhwloc-dev
+
+Optional Vectorization Libraries:
+----------------------------------
+1. Google Highway (portable SIMD)
+   - Install: git clone https://github.com/google/highway
+
+2. VectorClass (x86 intrinsics)
+   - Install: git clone https://github.com/vectorclass/version2
+
+3. EVE (expressive vector engine)
+   - Install: git clone https://github.com/jfalcou/eve
+
+Base Components (from Project JCore):
+--------------------------------------
+- CPU Feature Detection Module
+- ISA-Aware Dispatch Mechanism
+- Hardware Introspection Layer
+- Microbenchmark & Timer Utilities
+
+Derived Components:
+-------------------
+- Adaptive Kernel Auto-Tuner
+
+Advanced Components:
+--------------------
+- Kernel Fusion Engine
+
+================================================================================
+INSTALLATION COMMANDS
+================================================================================
+
+Ubuntu/Debian:
+--------------
+sudo apt-get update
+sudo apt-get install -y \
+    build-essential \
+    cmake \
+    llvm-14-dev \
+    libllvm14 \
+    llvm-14-tools \
+    clang-14 \
+    libopenblas-dev \
+    libblis-dev \
+    libhwloc-dev \
+    git
+
+# Optional: Install vectorization libraries
+cd /tmp
+git clone https://github.com/google/highway
+cd highway && mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+sudo make install
+
+RHEL/CentOS/Fedora:
+-------------------
+sudo yum install -y \
+    gcc-c++ \
+    cmake \
+    llvm-devel \
+    llvm-static \
+    openblas-devel \
+    blis-devel \
+    hwloc-devel
+
+================================================================================
+COMPILATION COMMANDS
+================================================================================
+
+Basic Compilation (Single Object):
+-----------------------------------
+g++ -std=c++17 -O3 -mavx2 -mfma \
+    -I../include \
+    -I../../base/cpu_detection/include \
+    -I../../base/isa_dispatch/include \
+    -I../../base/hw_introspection/include \
+    -I../../base/microbench/include \
+    -I../../composite/adaptive_tuner/include \
+    -I../../advanced/kFusion_engine/include \
+    -c src/jit_core.cpp -o jit_core.o
+
+Full Build with All Sources:
+-----------------------------
+# Compile all source files
+g++ -std=c++17 -O3 -mavx2 -mfma \
+    -I./include \
+    -I../../base/cpu_detection/include \
+    -I../../base/isa_dispatch/include \
+    -I../../base/hw_introspection/include \
+    -I../../base/microbench/include \
+    -I../../composite/adaptive_tuner/include \
+    -I../../advanced/kFusion_engine/include \
+    $(llvm-config-14 --cxxflags) \
+    -c src/jit_core.cpp \
+    -c src/llvm_codegen.cpp \
+    -c src/vectorization_backends.cpp \
+    -c src/jit_utilities.cpp \
+    -c src/jit_wrapper.cpp
+
+# Link all objects
+g++ -std=c++17 -O3 \
+    jit_core.o \
+    llvm_codegen.o \
+    vectorization_backends.o \
+    jit_utilities.o \
+    jit_wrapper.o \
+    $(llvm-config-14 --ldflags --libs core orcjit support target) \
+    -L../../base/cpu_detection/lib -lcpu_detection \
+    -L../../base/isa_dispatch/lib -lisa_dispatch \
+    -L../../base/hw_introspection/lib -lhw_introspect \
+    -L../../base/microbench/lib -lmicrobench \
+    -L../../composite/adaptive_tuner/lib -ladaptive_tuner \
+    -L../../advanced/kFusion_engine/lib -lkernel_fusion \
+    -lopenblas -lblis -lhwloc \
+    -shared -o libjit_kernel.so
+
+Build Test Executable:
+-----------------------
+g++ -std=c++17 -O3 -mavx2 -mfma \
+    -I./include \
+    -I../../base/cpu_detection/include \
+    -I../../base/isa_dispatch/include \
+    -I../../base/hw_introspection/include \
+    -I../../base/microbench/include \
+    -I../../composite/adaptive_tuner/include \
+    -I../../advanced/kFusion_engine/include \
+    $(llvm-config-14 --cxxflags) \
+    src/jit_kernel_test.cpp \
+    -L. -ljit_kernel \
+    $(llvm-config-14 --ldflags --libs) \
+    -lopenblas -lblis -lhwloc -lpthread -ldl \
+    -Wl,-rpath,. \
+    -o jit_kernel_test
+
+Run Test:
+---------
+export LD_LIBRARY_PATH=.:../../base/cpu_detection/lib:../../base/isa_dispatch/lib:../../base/hw_introspection/lib:../../base/microbench/lib:../../composite/adaptive_tuner/lib:../../advanced/kFusion_engine/lib:$LD_LIBRARY_PATH
+./jit_kernel_test
+
+================================================================================
+COMPILER FLAGS EXPLANATION
+================================================================================
+
+-std=c++17        : C++17 standard (required for LLVM and modern C++ features)
+-O3               : Maximum optimization level
+-mavx2            : Enable AVX2 instructions
+-mfma             : Enable FMA (Fused Multiply-Add) instructions
+-march=native     : Optimize for host CPU (alternative to -mavx2)
+-fopenmp          : Enable OpenMP for parallel code (if needed)
+
+LLVM Flags:
+-----------
+$(llvm-config-14 --cxxflags)  : LLVM C++ compilation flags
+$(llvm-config-14 --ldflags)   : LLVM linker flags
+$(llvm-config-14 --libs ...)  : LLVM libraries to link
+
+Required LLVM Components:
+- core      : Core LLVM IR functionality
+- orcjit    : On-Request-Compilation JIT
+- support   : Support utilities
+- target    : Target machine abstraction
+
+================================================================================
+ADVANCED BUILD OPTIONS
+================================================================================
+
+With Highway Support:
+---------------------
+Add flags:
+    -DJKG_HAS_HIGHWAY=1 \
+    -I/usr/local/include/hwy \
+    -lhwy
+
+With VectorClass Support:
+--------------------------
+Add flags:
+    -DJKG_HAS_VECTORCLASS=1 \
+    -I/path/to/vectorclass
+
+With EVE Support:
+-----------------
+Add flags:
+    -DJKG_HAS_EVE=1 \
+    -I/path/to/eve/include
+
+Debug Build:
+------------
+Replace -O3 with -O0 -g -DDEBUG for debugging:
+g++ -std=c++17 -O0 -g -DDEBUG -mavx2 ...
+
+Profile-Guided Optimization:
+----------------------------
+# Step 1: Instrumented build
+g++ -std=c++17 -O3 -fprofile-generate ...
+
+# Step 2: Run representative workload
+./jit_kernel_test
+
+# Step 3: Optimized build with profile data
+g++ -std=c++17 -O3 -fprofile-use ...
+
+================================================================================
+CMAKE BUILD EXAMPLE
+================================================================================
+
+CMakeLists.txt:
+---------------
+cmake_minimum_required(VERSION 3.14)
+project(JITKernelGenerator CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(LLVM 14 REQUIRED CONFIG)
+find_package(OpenMP)
+
+add_definitions(${LLVM_DEFINITIONS})
+include_directories(${LLVM_INCLUDE_DIRS})
+
+add_library(jit_kernel SHARED
+    src/jit_core.cpp
+    src/llvm_codegen.cpp
+    src/vectorization_backends.cpp
+    src/jit_utilities.cpp
+    src/jit_wrapper.cpp
+)
+
+llvm_map_components_to_libnames(llvm_libs core orcjit support target)
+target_link_libraries(jit_kernel ${llvm_libs} openblas blis hwloc)
+
+add_executable(jit_kernel_test src/jit_kernel_test.cpp)
+target_link_libraries(jit_kernel_test jit_kernel)
+
+Build:
+------
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Issue: LLVM headers not found
+Solution: Install llvm-dev package or set LLVM_DIR
+    export LLVM_DIR=/usr/lib/llvm-14
+
+Issue: Undefined reference to LLVM symbols
+Solution: Check llvm-config output and verify library paths
+    llvm-config-14 --libdir
+    export LD_LIBRARY_PATH=/usr/lib/llvm-14/lib:$LD_LIBRARY_PATH
+
+Issue: AVX2 illegal instruction
+Solution: CPU doesn't support AVX2, use -march=native or -msse4.2
+
+Issue: Cannot find base component libraries
+Solution: Build base components first in correct order:
+    1. CPU Feature Detection
+    2. ISA-Aware Dispatch
+    3. Hardware Introspection
+    4. Microbenchmark Utilities
+    5. Adaptive Tuner
+    6. Kernel Fusion Engine
+
+================================================================================
+PERFORMANCE TUNING
+================================================================================
+
+1. Use -O3 -march=native for maximum performance
+2. Enable LTO (Link-Time Optimization): -flto
+3. Use profile-guided optimization (PGO) for hot paths
+4. Set LLVM optimization level in jkg_config_t
+5. Enable kernel caching to avoid repeated compilation
+6. Tune tile sizes based on cache hierarchy
+
+================================================================================
+NOTES
+================================================================================
+
+1. This is a complex component requiring LLVM infrastructure
+2. Full JIT compilation requires runtime LLVM linking
+3. Test suite provides correctness verification and benchmarks
+4. Vectorization library integration is optional but recommended
+5. Component integrates with Kernel Fusion Engine for optimal performance
+6. Cache management is critical for repeated kernel generation
+7. Thread-safe after initialization
+8. FFM API compatible for foreign function interfaces
+
+================================================================================

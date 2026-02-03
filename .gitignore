@@ -1,0 +1,67 @@
+# ------------------------------
+# Build directories
+# ------------------------------
+build/
+cmake-build-debug/
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.o
+*.obj
+*.a
+*.exe
+*.so
+
+# ------------------------------
+# IDE and editor configs
+# ------------------------------
+.vscode/
+.idea/
+*.code-workspace
+
+# ------------------------------
+# Cache and temporary files
+# ------------------------------
+*.bin
+*.cache
+*.log
+.mil_trcs_cache
+tuning_cache.bin
+
+# ------------------------------
+# LLVM / CMake generated files
+# ------------------------------
+*.dir/
+*.cmake
+CMakeCache.txt
+CTestTestfile.cmake
+Testing/
+
+# ------------------------------
+# OS files
+# ------------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------------
+# Optional: test output files
+# ------------------------------
+project_test/*.o
+project_test/*.out
+project_test/*.exe
+
+# ------------------------------
+# Optional: large generated data
+# ------------------------------
+test_graph.dot
+
+# llvm / vendor libs
+**/llvm/
+**/lib/static/
+**/lib/shared/
+dependencies/
+advanced/llvm
+advanced/test_files
+advanced/lib
+composite/lib
+composite/test_files
