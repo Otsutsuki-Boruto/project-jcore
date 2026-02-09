@@ -109,6 +109,7 @@ Project dependent libraries which are the submodules of project and are a necess
 the static and shared libraries for the project (The libs compilation commands are available in compile directory).
 
 Alternatively libraries are made available including **LLVM 20.1.0** static and shared libraries in project releases.
+
 ---
 
 ## **Build**
