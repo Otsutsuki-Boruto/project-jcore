@@ -1,4 +1,4 @@
-# Project JCore
+# **Project JCore**
 
 **JCore** is a modular high-performance neural compute engine providing optimized primitives for matrix/tensor algebra, convolution, normalization, and fused execution.
 
@@ -15,7 +15,7 @@ The original objective was to expose these capabilities to Java through the FFM 
 
 ---
 
-## Architecture (high level)
+## **Architecture (high level)**
 
 ```
 Neural Primitives Layer (NPL)
@@ -29,39 +29,39 @@ Microkernel Interface Layer
 
 ---
 
-## Features
+## **Features**
 
-### Matrix / Tensor Operations
+### **Matrix / Tensor Operations**
 
 * `npl_matmul`
 * `npl_add`, `npl_mul`
 * broadcasting
 * element-wise ops
 
-### Convolutions
+### **Convolutions**
 
 * `npl_conv2d`
 * `npl_depthwise_conv2d`
 * `npl_conv2d_bn_activation` (fused)
 
-### Pooling
+### **Pooling**
 
 * `npl_pooling`
 * `npl_global_avg_pool`
 
-### Normalization
+### **Normalization**
 
 * `npl_batch_norm`
 * `npl_layer_norm`
 
-### Activations
+### **Activations**
 
 * `npl_relu`
 * `npl_leaky_relu`
 * `npl_softmax`
 * generic `npl_activation`
 
-### Tensor Runtime
+### **Tensor Runtime**
 
 * `npl_create_tensor`
 * `npl_allocate_tensor`
@@ -70,9 +70,9 @@ Microkernel Interface Layer
 
 ---
 
-## Performance Notes
+## **Performance Notes**
 
-JCore builds on top of BLAS kernels and applies:
+**JCore** builds on top of BLAS kernels and applies:
 
 * dispatch selection
 * tiling
@@ -85,9 +85,9 @@ It is **not intended to replace vendor libraries such as Intel MKL**, but to pro
 
 ---
 
-## Requirements
+## **Requirements**
 
-System libraries:
+### **System libraries:**
 
 * OpenBLAS
 * BLIS
@@ -103,9 +103,15 @@ System libraries:
 
 Minimum ISA: **AVX2**
 
+### **Project Libraries:**
+
+Project dependent libraries which are the submodules of project and are a necessity when working it by **native integration** of **FFM API**. You can recompile
+the static and shared libraries for the project (The libs compilation commands are available in compile directory).
+
+Alternatively libraries are made available including **LLVM 20.1.0** static and shared libraries in project releases.
 ---
 
-## Build
+## **Build**
 
 ```bash
 mkdir build
@@ -116,7 +122,7 @@ make -j
 
 ---
 
-## Usage
+## **Usage**
 
 Include:
 
