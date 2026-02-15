@@ -11,6 +11,7 @@ Makefile
 *.a
 *.exe
 *.so
+*.class
 
 # ------------------------------
 # IDE and editor configs
